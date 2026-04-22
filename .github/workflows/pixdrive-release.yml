@@ -1,0 +1,60 @@
+name: PixDrive Release
+
+on:
+  push:
+    tags:
+      - 'v*-pixdrive*'
+
+jobs:
+  build:
+    name: Build PixDrive Firmware
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        cache: 'npm'
+    - run: npm ci
+    - name: Cache PlatformIO
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.platformio/.cache
+          ~/.buildcache
+          build_output
+        key: pio-${{ runner.os }}-pixdrive-${{ hashFiles('platformio.ini', 'platformio_override.ini') }}-${{ hashFiles('wled00/**', 'usermods/**') }}
+        restore-keys: pio-${{ runner.os }}-pixdrive-
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+    - name: Install PlatformIO
+      run: pip install -r requirements.txt
+    - name: Create platformio_override.ini
+      run: |
+        printf '[platformio]\ndefault_envs = pixdrive_esp32\n\n[env:pixdrive_esp32]\nextends = env:esp32dev\nbuild_flags = ${env:esp32dev.build_flags}\n  -D WLED_RELEASE_NAME=\\"ESP32_PixDrive\\"\n  -D WLED_USE_SD_SPI\n  -D USERMOD_PIXDRIVE\n' > platformio_override.ini
+    - name: Build firmware
+      run: pio run -e pixdrive_esp32
+    - uses: actions/upload-artifact@v4
+      with:
+        name: firmware-pixdrive
+        path: build_output/release/*.bin
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: firmware-pixdrive
+    - name: Create release
+      uses: softprops/action-gh-release@v2
+      with:
+        draft: true
+        generate_release_notes: true
+        files: '*.bin'
