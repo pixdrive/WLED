@@ -194,6 +194,10 @@
   #include "../usermods/sd_card/usermod_sd_card.h"
 #endif
 
+#ifdef USERMOD_PIXDRIVE
+  #include "../usermods/pixdrive/usermod_pixdrive.h"
+#endif
+
 #ifdef USERMOD_PWM_OUTPUTS
   #include "../usermods/pwm_outputs/usermod_pwm_outputs.h"
 #endif
@@ -409,6 +413,10 @@ void registerUsermods()
 
   #ifdef SD_ADAPTER
   UsermodManager::add(new UsermodSdCard());
+  #endif
+
+  #ifdef USERMOD_PIXDRIVE
+  UsermodManager::add(new UsermodPixDrive());
   #endif
 
   #ifdef USERMOD_PWM_OUTPUTS
