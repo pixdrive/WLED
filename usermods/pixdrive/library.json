@@ -1,0 +1,5 @@
+{
+  "name": "pixdrive",
+  "build": { "libArchive": false },
+  "dependencies": {}
+}

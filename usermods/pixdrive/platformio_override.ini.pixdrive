@@ -1,0 +1,31 @@
+[platformio]
+default_envs = pixdrive_esp32
+
+[env:pixdrive_esp32]
+extends = env:esp32dev
+custom_usermods = sd_card pixdrive
+; features enabled by default in the upstream ESP32 builds that PixDrive devices don't use
+build_unflags = ${env:esp32dev.build_unflags}
+  -D WLED_ENABLE_GIF
+  -D WLED_ENABLE_DMX_INPUT
+build_flags = ${env:esp32dev.build_flags}
+  -D WLED_RELEASE_NAME=\"ESP32_PixDrive\"
+  ; SD card (sd_card usermod) with PixDrive factory pins
+  -D WLED_USE_SD_SPI
+  -D SD_SPI_PIN_CS=33
+  -D SD_SPI_PIN_SCK=27
+  -D SD_SPI_PIN_POCI=26
+  -D SD_SPI_PIN_PICO=25
+  ; lean build: only ESP-NOW (remote), OTA and the web UI stay enabled
+  -D WLED_DISABLE_ALEXA
+  -D WLED_DISABLE_HUESYNC
+  -D WLED_DISABLE_INFRARED
+  -D WLED_DISABLE_MQTT
+  -D WLED_DISABLE_LOXONE
+  -D WLED_DISABLE_ADALIGHT
+
+; same firmware with serial debug output (pio run -e pixdrive_esp32_debug)
+[env:pixdrive_esp32_debug]
+extends = env:pixdrive_esp32
+build_flags = ${env:pixdrive_esp32.build_flags}
+  -D WLED_DEBUG

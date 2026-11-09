@@ -1,0 +1,79 @@
+.wled Binary Animation File Protocol
+=======================================
+
+20-byte fixed header followed by raw frame data.
+
+
+HEADER (20 bytes)
+-----------------
+
+Offset  Bytes  Type        Field        Description
+------  -----  ----------  -----------  ------------------------------------
+0-3     4      char[4]     Magic        ASCII "WLED" (0x57 0x4C 0x45 0x44)
+4       1      uint8_t     FPS          Playback speed (1-255)
+5       1      uint8_t     Flags        Bit 0: RGBW mode (1=4bpp, 0=3bpp)
+                                        Bit 1-7: Reserved (must be 0)
+6-7     2      uint16_t    LED Count    Number of LEDs per frame (little-endian)
+8-11    4      uint32_t    Frame Count  Total number of frames (little-endian)
+12-15   4      uint32_t    CRC32        CRC32 checksum over all frame data
+16-19   4      uint8_t[4]  Reserved     Must be 0x00
+
+
+FRAME DATA
+----------
+
+Starts at byte offset 20.
+
+Each frame contains LED Count pixels.
+Each pixel is 3 bytes (RGB) or 4 bytes (RGBW), determined by Flags bit 0.
+
+Byte order per pixel:
+  RGB mode:   [R] [G] [B]
+  RGBW mode:  [R] [G] [B] [W]
+
+Frames are stored sequentially with no padding or separators.
+
+Total frame data size = Frame Count x LED Count x bytes_per_pixel
+  where bytes_per_pixel = 4 if RGBW, 3 if RGB
+
+
+CRC32
+-----
+
+Algorithm: CRC32 (ISO 3309 / ITU-T V.42)
+Polynomial: 0xEDB88320 (reversed representation)
+Input: All frame data bytes (everything after the 20-byte header)
+Initial value: 0xFFFFFFFF
+Final XOR: 0xFFFFFFFF
+
+Compatible with zlib.crc32() in Python and standard CRC32 implementations.
+
+
+CONSTRAINTS
+-----------
+
+- LED Count: 1 to 65535
+- Frame Count: 1 to 4294967295
+- FPS: 1 to 255
+- Maximum file size: Limited only by SD card capacity
+- Byte order: All multi-byte fields are little-endian
+
+
+EXAMPLE
+-------
+
+A 30-LED RGB animation at 30 FPS with 120 frames:
+
+  Header (20 bytes):
+    57 4C 45 44    Magic "WLED"
+    1E             FPS = 30
+    00             Flags = 0x00 (RGB)
+    1E 00          LED Count = 30
+    78 00 00 00    Frame Count = 120
+    XX XX XX XX    CRC32 of frame data
+    00 00 00 00    Reserved
+
+  Frame data (10800 bytes):
+    120 frames x 30 LEDs x 3 bytes = 10800 bytes
+
+  Total file size: 10820 bytes
