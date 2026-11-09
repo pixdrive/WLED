@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - '*'
+      - '!*-pixdrive*' # PixDrive releases are built by pixdrive-release.yml
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true

@@ -8,7 +8,10 @@ custom_usermods = sd_card pixdrive
 build_unflags = ${env:esp32dev.build_unflags}
   -D WLED_ENABLE_GIF
   -D WLED_ENABLE_DMX_INPUT
-build_flags = ${env:esp32dev.build_flags}
+; same as env:esp32dev, but without its WLED_RELEASE_NAME="ESP32": the release name
+; must be defined once, it is used for the .bin file name and the OTA compatibility check
+build_flags = ${common.build_flags} ${esp32_idf_V4.build_flags}
+  -DARDUINO_USB_CDC_ON_BOOT=0
   -D WLED_RELEASE_NAME=\"ESP32_PixDrive\"
   ; SD card (sd_card usermod) with PixDrive factory pins
   -D WLED_USE_SD_SPI
