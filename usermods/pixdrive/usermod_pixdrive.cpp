@@ -20,7 +20,11 @@
   #include "SD.h"
   #define SD_ADAPTER SD
 #else
-  #error "PixDrive requires the sd_card usermod. Define WLED_USE_SD_SPI or WLED_USE_SD_MMC."
+  // Still compile (e.g. in the upstream "all usermods" CI build), but nothing
+  // initialises the card, so PixDrive will report "no card" at runtime.
+  #warning "PixDrive: define WLED_USE_SD_SPI or WLED_USE_SD_MMC and add the sd_card usermod, otherwise no SD card is available."
+  #include "SD.h"
+  #define SD_ADAPTER SD
 #endif
 
 // ---- .wled binary file format (20-byte header) ----
