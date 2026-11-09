@@ -23,6 +23,9 @@
   | `pinPico`         | GPIO that is connected to SD's `PICO`<sup>☨</sup> (Peripheral-In-Ctrl-Out) / `MOSI` (deprecated) | 15      |
   | `sdEnable`        | Enable to read data from the SD-card                                                             | true    |
 
+  The default pins can be changed at build time with `-D SD_SPI_PIN_CS=`, `-D SD_SPI_PIN_SCK=`, `-D SD_SPI_PIN_POCI=` and `-D SD_SPI_PIN_PICO=`.
+  Values saved via the web UI take precedence.
+
   <sup>☨</sup><sub>Following new naming convention of [OSHWA](https://www.oshwa.org/a-resolution-to-redefine-spi-signal-names/)</sub>
 
 ## Usage in other mods
